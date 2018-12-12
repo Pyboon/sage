@@ -5,13 +5,12 @@
 
 using namespace std;
 int main(){
-
-    IsiSage test_Sage(9,1); 
     // config init
-    string path_cir = "../data/";
-    string path_antenna = "../antenna_bin/";
-    string path_result  = "../result/";
-    test_Sage.ConfigInit(path_cir, path_antenna, path_result);
+    string path_cir = "../../data/low_fre_MIMO/";
+    string path_antenna = "../../antenna_bin/";
+    string path_result  = "../../result/";
+    IsiSage test_Sage(path_cir, path_antenna, path_result); 
+    test_Sage.ConfigInit(11, 1);
     test_Sage.run();
     return 0;
 }

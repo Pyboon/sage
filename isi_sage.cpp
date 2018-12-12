@@ -7,6 +7,51 @@
 using namespace std;
 using namespace Eigen;
 
+void IsiSage::ConfigInit(int spot, int cycle_idx, int Tx, int Rx, int pn_code, int cyc_num, 
+double fc, double bd, double cycle_rate){
+    Util::log("config init...");
+    this->spot = spot;
+    this->cycle_idx = cycle_idx;
+    // to be modified config
+    config.Tx = Tx;
+    config.Rx = Rx;
+    config.cycle_num = cyc_num;
+    config.PN_CODE = pn_code;
+    config.fc = fc;
+    config.bandwidth = bd;
+    config.cycle_rate = cycle_rate;
+    config.is_pg = true;
+    // fixed config
+    config.sample_codes = config.PN_CODE * 2;
+    config.lambda = SPEED_OF_LIGHT / config.fc;    
+    config.subchannel_num = config.Tx * config.Rx;
+    config.subchannel_withPG_num = config.Tx * (config.Rx + 1);
+    // souder 的采样原理设置了一个保护间隔
+    config.channel_num = config.Tx * (config.Rx + 1) * config.cycle_num;
+    // 此处的T为chip rate 就是一个码片的时间，一个PN序列有PN_CODE长度的码片
+    config.T = 1 / config.bandwidth;
+    // 收端一个天线阵列的扫描时间，即接收一个PN序列的时间，但是由于需要满足采样定理，因此为2倍的PN序列长度
+    // 以下有关时间的都以码片为单位
+    config.Tsc = config.sample_codes;
+    config.switch_interval = config.Tsc;
+    config.Tr = config.Tsc + config.switch_interval;
+    config.Tt = config.Tr * (config.Rx + 1);
+    config.Tcy = config.Tt * config.Tx;
+    config.cycle_interval = (int)(1/config.cycle_rate/config.T);
+    config.max_doppler = config.cycle_rate / 2;
+    config.max_phi_rx = 180;
+    config.min_phi_rx = -180;
+    config.max_theta_rx = 80;
+    config.min_theta_rx = -80;
+    config.max_phi_tx = 60;
+    config.min_phi_tx = -60;
+    config.max_theta_tx = 60;
+    config.min_theta_tx = -60;
+    config.doppler_step = 0.1; // hz
+    config.angle_step = 1; // degree
+    config.delay_step = 1; // one T period 
+    Util::log("config init done");
+}
 void IsiSage::ParamsInit(){
     Util::log("sage params init");
     //init result array and CT and CR array
@@ -424,8 +469,7 @@ void IsiSage::UpdateDoppler(RowVectorXcd tau_data, const int iL){
     result.doppler(iL) = max_index * config.doppler_step;
 }
 
-void IsiSage::SaveResult(){
-    string save_path = config.path_result + "/spot_" + to_string(spot);
+void IsiSage::SaveResult(const string save_path){
     Util::log("Saving Sage Result at " + save_path);
     ofstream f_result(save_path, ios::binary|ios::app);
     if(!f_result){
@@ -473,5 +517,6 @@ void IsiSage::run(){
     ReadAntennaResponse();
     ParamsInit();
     ParamsIterationUpdate();
-    SaveResult();
+    string save_path = config.path_result + "/spot_" + to_string(spot);
+    SaveResult(save_path);
 }

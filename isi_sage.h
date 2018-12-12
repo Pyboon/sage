@@ -8,10 +8,13 @@ using namespace std;
 class IsiSage: protected Sage{
 public:
     // construction for all params
-    IsiSage(int spot, int cycle_idx, int max_iter_num, int max_path_num):
-    Sage(spot, cycle_idx, max_iter_num, max_path_num){};
+    IsiSage(string path_cir, string path_antenna, string path_result, int max_iter_num, int max_path_num):
+    Sage(path_cir, path_antenna, path_result, max_iter_num, max_path_num){};
     // construction for required params  
-    IsiSage(int sopt, int cycle_idx): Sage(sopt, cycle_idx){};
+    IsiSage(string path_cir, string path_antenna, string path_result): Sage(path_cir, path_antenna, path_result){};
+    // init config
+    virtual void ConfigInit(int spot, int cycle_idx, int Tx = 32, int Rx = 56, int pn_code = 127, int cyc_num = 4,
+    double fc = 3.5e9, double bd = 100e6, double cycle_rate = 21.584);
     void ParamsInit();
     void ParamsIterationUpdate();
     RowVectorXcd InitTau(const complex_mat data, const int iL);
@@ -27,7 +30,7 @@ public:
     double ObjectiveFunction(RowVectorXcd tau_data, double doppler, MatrixX2cd C1,
     MatrixX2cd C2, const int iL);
     void run();
-    void SaveResult();
+    void SaveResult(const string path);
     ~IsiSage(){};
 
 };

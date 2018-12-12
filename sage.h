@@ -23,14 +23,15 @@ protected:
     SageResult result;
 public:
     // construction
-    Sage(int spot, int cycle_idx, int max_iter_num = 10, int max_path_num = 10):
-    spot(spot), cycle_idx(cycle_idx), max_iter_num(max_iter_num), 
-    max_path_num(max_path_num){
+    Sage(string path_cir, string path_antenna, string path_result, int max_iter_num = 10, int max_path_num = 10):
+    max_iter_num(max_iter_num), max_path_num(max_path_num){
+        config.path_cir = path_cir;
+        config.path_antenna = path_antenna;
+        config.path_result = path_result;
     };     
     // init config
-    void ConfigInit(string path_cir = "../../data/", string path_antenna = "../../antenna_bin", string path_result = "../result", 
-    int Tx = 32, int Rx = 56, int pn_code = 127, int cyc_num = 4, double fc = 3.5e9, double bd = 100e6,
-    double cycle_rate = 26.981);
+    virtual void ConfigInit(int spot, int cycle_idx, int Tx = 32, int Rx = 56, int pn_code = 127, int cyc_num = 4,
+    double fc = 3.5e9, double bd = 100e6, double cycle_rate = 26.981) = 0;
     // init CIR
     void InitCIR();
     // read CIR
