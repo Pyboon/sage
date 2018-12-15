@@ -28,13 +28,13 @@ public:
     double bandwidth;
     int subchannel_num;
     int subchannel_withPG_num; 
-    int T;
+    double T;
     int Tsc;
     int Tt;
     int Tr;
     int Tcy;
     int switch_interval;
-    int cycle_interval;
+    double cycle_interval;
     double cycle_rate;
     double max_doppler;
     double min_theta_tx;
@@ -59,6 +59,14 @@ struct SageResult{
     VectorXd theta_rx;
     VectorXd phi_rx;
     complex_mat alpha;
+};
+struct ResultTol{
+    int tau;
+    double doppler;
+    double theta_rx;
+    double phi_rx;
+    double theta_tx;
+    double phi_tx;
 };
 
 #endif

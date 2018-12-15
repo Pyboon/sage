@@ -9,7 +9,7 @@ int main(){
     string path_cir = "../../data/low_fre_MIMO/";
     string path_antenna = "../../antenna_bin/";
     string path_result  = "../../result/";
-    IsiSage test_Sage(path_cir, path_antenna, path_result); 
+    IsiSage test_Sage(path_cir, path_antenna, path_result, 10, 20); 
     test_Sage.ConfigInit(11, 1);
     test_Sage.run();
     return 0;

@@ -33,13 +33,13 @@ void Sage::ReadCIR(){
         cerr<<"ReCIR or ImCIR is not exist!"<<endl;
         abort();
     }
-    int rows = this->CIR.rows();
-    if(!rows){
+    if(!(CIR.rows())){
         InitCIR();
     }
-    int cols = this->CIR.cols();
+    int rows = CIR.rows();
+    int cols_one_cycle = config.subchannel_num;
     if(config.is_pg){
-        cols = config.subchannel_withPG_num * config.cycle_num;
+        cols_one_cycle = config.subchannel_withPG_num;
         Util::log("Protection-Guard in CIR!");
     }
     double real_point = 0.0;
@@ -47,20 +47,24 @@ void Sage::ReadCIR(){
     // in matlab convert, fwrite is save in binary with column order
     // so here read from binary with columns order
     int real_col = 0;
-    for(int j = 0; j<cols; ++j){
-        for(int i = 0; i<rows; ++i){
-            fReCIR.read((char*)&real_point, sizeof(double));
-            fImCIR.read((char*)&imag_point, sizeof(double));
-            if(config.is_pg && j>0 && j%config.Rx==0){
-                continue; // only read but not write to CIR
-            }else{
-                CIR(i,real_col).real(real_point);
-                CIR(i,real_col).imag(imag_point);
-                ++real_col;
+    for(int k = 0; k<config.cycle_num; ++k){
+        for(int j = 1; j<=cols_one_cycle; ++j){
+                for(int i = 0; i<rows; ++i){
+                    fReCIR.read((char*)&real_point, sizeof(double));
+                    fImCIR.read((char*)&imag_point, sizeof(double));
+                    if(config.is_pg && j%(config.Rx+1)==0){
+                        continue; // only read but not write to CIR
+                    }else{
+                        CIR(i,real_col).real(real_point);
+                        CIR(i,real_col).imag(imag_point);
+                    }
+                }
+                if(!(config.is_pg && j%(config.Rx+1)==0)){
+                    ++real_col;
+                }
             }
-        }
     }
-
+    
     fReCIR.close();
     fImCIR.close();
     // for(int i = 0; i<rows; ++i){
@@ -140,19 +144,38 @@ MatrixX2cd Sage::getAntennaResponse(double theta, double phi, const int k){
     if(k==1){
         MatrixX2cd response(config.Tx, 2);
         for(int i = 0; i < config.Tx; ++i){
-            response(i, 0) = TxArrayEphi[i](phi_index, theta_index);
-            response(i, 1) = TxArrayEtheta[i](phi_index, theta_index);
+            response(i, 1) = TxArrayEphi[i](phi_index, theta_index);
+            response(i, 0) = TxArrayEtheta[i](phi_index, theta_index);
         }
         return response;
 
     } else if(k ==2){ // k ==2 : rx antenna response
         MatrixX2cd response(config.Rx, 2);
         for(int i = 0; i < config.Rx; ++i){
-            response(i, 0) = RxArrayEphi[i](phi_index, theta_index);
-            response(i, 1) = RxArrayEtheta[i](phi_index, theta_index);
+            response(i, 1) = RxArrayEphi[i](phi_index, theta_index);
+            response(i, 0) = RxArrayEtheta[i](phi_index, theta_index);
         }
         return response;
     } else {
         cerr<<"parameters error"<<endl;
     }
+}
+
+bool Sage::IterConvergence(SageResult last_result, SageResult cur_result){
+    VectorXi tau_diff = last_result.tau - cur_result.tau;
+    VectorXd doppler_diff = last_result.doppler - cur_result.doppler;
+    VectorXd theta_rx_diff = last_result.theta_rx - cur_result.theta_rx;
+    VectorXd phi_rx_diff = last_result.phi_rx - cur_result.phi_rx;
+    VectorXd theta_tx_diff = last_result.theta_tx - cur_result.theta_tx;
+    VectorXd phi_tx_diff = last_result.phi_tx - cur_result.phi_tx;
+    bool is_convergence = true;
+    for(int iL = 0; iL < max_path_num; ++iL){
+        if(abs(tau_diff(iL)) > tol.tau || abs(doppler_diff(iL)) > tol.doppler || 
+        abs(theta_rx_diff(iL)) > tol.theta_rx || abs(phi_rx_diff(iL)) > tol.phi_rx ||
+        abs(theta_tx_diff(iL)) > tol.theta_tx || abs(phi_tx_diff(iL)) > tol.phi_tx){
+            is_convergence = false;
+            break;
+        }
+    }
+    return is_convergence;
 }
