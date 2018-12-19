@@ -2,19 +2,22 @@
 #define _UTIL_H_
 
 #include<iostream>
-#include <iomanip> 
+#include<iomanip> 
 #include<ctime>
 #include<cstdio>
 #include<string>
-#include <chrono>
-
+#include<chrono>
+#include<unistd.h>
+#define MAX_LENGTH 1024 
 using namespace std;
 
 class Util{
 public:
     static void log(const string message){
+        char hostname[MAX_LENGTH];
+        gethostname(hostname, MAX_LENGTH);
         string cur_time = GetCurTime();
-        printf("[%s] INFO:%s\n", cur_time.c_str(), message.c_str());
+        printf("[%s][%s] INFO:%s\n", hostname, cur_time.c_str(), message.c_str());
     }
     static string  GetCurTime(){
         time_t nowtime;  

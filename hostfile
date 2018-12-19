@@ -1,0 +1,4 @@
+## hostfile 
+## all computer has n processer but you can not use all processer at the same time or it will crash
+rtt2-hp-ml350:40 # 40 of 48 processer total  
+rtt2-lenovo-D30:12 # 12 of 16 processer total

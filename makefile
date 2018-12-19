@@ -1,7 +1,7 @@
-CXX=g++
+CXX=mpicxx
 CXXFLAGS=-g -std=c++11 -Wall -pedantic
-BIN=test_sage
-OBJS = test_sage.o sage.o isi_sage.o
+BIN=test_mpi_sage
+OBJS = test_mpi_sage.o sage.o isi_sage.o
 
 test_sage:$(OBJS) 
 	$(CXX) -o $(BIN) $(OBJS) $(CXXFLAGS)

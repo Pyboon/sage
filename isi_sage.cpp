@@ -163,9 +163,7 @@ void IsiSage::InitAoA(const RowVectorXcd tau_data, const int iL){
     int phi_size = (max_phi_rx - min_phi_rx)/step + 1;
     MatrixXd aoa_data(theta_size, phi_size);
     aoa_data.setZero(theta_size, phi_size);
-    Util::log("generating aoa_data...");
-    int bar_size = theta_size * phi_size;
-    ProgressBar p_bar(bar_size, 50, '#', '-');
+    Util::log("generating aoa_data...(waiting for a few time)");
     for(int i_theta = 0; i_theta < theta_size; ++i_theta){
         for(int i_phi = 0; i_phi < phi_size; ++i_phi){
                 MatrixX2cd C2 = getAntennaResponse(min_theta_rx+i_theta*step, min_phi_rx+i_phi*step, 2);
@@ -183,11 +181,8 @@ void IsiSage::InitAoA(const RowVectorXcd tau_data, const int iL){
                 complex<double> part3 = y_m1_H * c_2_2 * c_2_1_H * y_m1 * c_2_2_H * c_2_1;
                 aoa_data(i_theta, i_phi) += p1_norm + p2_norm - 2 * part3.real();
             }
-            ++p_bar;
         }
-        p_bar.display();
     }
-    p_bar.done();
     int i,j;
     aoa_data.maxCoeff(&i, &j);
     result.theta_rx(iL) = i * config.angle_step + min_theta_rx;
