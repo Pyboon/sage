@@ -1,5 +1,6 @@
-# sage
+# sage code in C++
 Sage algorithm for Channel Modeling
+BUPT RTT2 Lab
 
 ## 简易流程
 
